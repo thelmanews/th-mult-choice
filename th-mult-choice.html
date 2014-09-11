@@ -61,6 +61,11 @@ Element providing a multiple choice quiz, animated via th-flipbox
         #answer {
           opacity: 0;
         }
+
+        .headline {
+          text-align: center;
+          padding-bottom: 10px;
+        }
     
       </style>
 
@@ -68,7 +73,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
           <th-flipbox id="flipbox" width="{{width}}" height="{{height}}" flippable="false" animateOnInit="true">
             <div class="front" style="position: absolute; top: 0; left: 0; -webkit-backface-visibility: hidden; display: table;">
               <div id="question">
-                <p id="headline" class="headline">{{question}}</p>
+                <div id="headline" class="headline">{{question}}</div>
                 
                 <div class="choices" >
                   <template repeat="{{choice, choiceIndex in choices}}">
@@ -88,7 +93,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
 
             <div class="back" style="position: absolute; top: 0; left: 0; -webkit-backface-visibility: hidden; display: table;">
               <div id="answer">
-                <p class="headline fadein">{{answerText}}</p>
+                <div class="headline fadein">{{answerText}}</div>
                 
                 <div class="choices">
                   <template repeat="{{choice in choices | answerFilter}}">
@@ -130,7 +135,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
          * The 'width' attribute specifies the width of the component in pixels.
          * @type {Number}
          */
-        width: 200,
+        width: 400,
 
         /** 
          * The 'height' attribute specifies the height of the component in pixels.
