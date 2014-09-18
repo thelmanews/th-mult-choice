@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../th-animated/th-animated.html">
 <link rel="import" href="../th-flipbox/th-flipbox.html">
+<link rel="import" href="../th-theme/th-theme.html">
 
 <!--
 Element providing a multiple choice quiz, animated via th-flipbox
@@ -66,6 +67,35 @@ Element providing a multiple choice quiz, animated via th-flipbox
           text-align: center;
           padding-bottom: 10px;
         }
+
+        .flash {
+          border-radius: 6px;
+          background-color: white;
+          padding: 10px;
+          box-sizing: border-box;
+          width: 100%;
+          color: black;
+          text-align: center;
+          /*font-size: 20px;*/
+          -webkit-animation-name: flash;
+          -webkit-animation-duration: 3s;
+          -webkit-animation-timing-function: ease-out; 
+          -webkit-animation-iteration-count: 1; 
+          opacity: 0;
+          margin: 0 auto;
+          position: absolute;
+          margin-top: 10%;
+          display: block;
+          
+          
+        }
+
+        @-webkit-keyframes flash {
+           0% {-webkit-transform: scale(1, 1); opacity: 0.0;}
+           40% {-webkit-transform: scale(1,1); opacity: 1.0; }
+           60% {-webkit-transform: scale(1,1); opacity: 1.0; }
+           100% {-webkit-transform: scale(1, 1); opacity: 0.0;}
+        }
     
       </style>
 
@@ -74,10 +104,10 @@ Element providing a multiple choice quiz, animated via th-flipbox
             <div class="front" style="color: {{textColor}}; position: absolute; top: 0; left: 0; -webkit-backface-visibility: hidden; display: table;">
               <div id="question">
                 <div id="headline" class="headline">{{question}}</div>
-                
+                <template if="{{tapped}}"> <div class="flash">Please press and hold</div> </template>
                 <div class="choices" >
                   <template repeat="{{choice, choiceIndex in choices}}">
-                    <li on-click="{{tap}}" on-touchend="{{tap}}" on-release="{{release}}" style="width:{{choiceWidth}}px; height:{{choiceHeight}}px; ">
+                    <li  touch-action="auto" on-click="{{tap}}" on-hold="{{hold}}" on-holdpulse="{{hold}}" on-release="{{release}}" style="width:{{choiceWidth}}px; height:{{choiceHeight}}px; ">
                         <div class="img-choice" id="{{choiceIndex}}"  style="background: url('{{choice.image}}');  background-size: cover; height: {{imageSize}}px; width: {{imageSize}}px; border-radius: {{imageSize/2}}px; border: 4px solid {{textColor || foreground}}; box-sizing: border-box; color: {{textColor || foreground}}; font-size: {{imageSize/2}}px; box-shadow: inset 0 0 0 0px rgba({{rgb}}, 0.5)">
                           <div class="checkmark"></div>
                         </div>
@@ -155,9 +185,12 @@ Element providing a multiple choice quiz, animated via th-flipbox
           self.answered = false;
           self.setElementDims();
           self.answersSelected = 0;
+          self.numTaps = 0;
           self.numAnswers = self.choices.filter(function(choice){
             return choice.answer=="true";
           }).length;
+
+
           
           self.animation = document.timeline;
         },
@@ -172,7 +205,8 @@ Element providing a multiple choice quiz, animated via th-flipbox
           self.choiceHeight = (height - questionHeight) / numRows; // Height of area for choices
           self.imageSize = Math.min(self.choiceHeight, self.choiceWidth) * 0.7;  // Size of image (assumes room for label)
           self.labelSize = Math.min(self.choiceHeight, self.choiceWidth) * 0.15; // Size of label
-          
+
+
         },
         /**
          * The 'setColors' method detects the theme and chooses the correct colors. It also converts the theme color into RGB format to be applied in RGBA format in CSS
@@ -189,39 +223,81 @@ Element providing a multiple choice quiz, animated via th-flipbox
                 (parseInt(result[1], 16)+","+parseInt(result[2], 16)+","+parseInt(result[3], 16)) : "0,0,0";
           })();
         },
+        hold: function(e, detail, selection){
+          var self = this,
+              imgChoice = selection.querySelector('.img-choice');
+          selection.className = "hold";
+    
+          self.animation.play(new Animation(imgChoice, 
+              {boxShadow:"inset 0 0 0 "+self.imageSize/2+"px rgba("+self.rgb+", 0.5)"}
+              
+            , {duration: 1000, fill: "forwards"}))
+          // self.answersSelected++;
+            // self.selectAnswer(selection);
+            // imgChoice.style.boxShadow = "inset 0 0 0 45px rgba("+self.rgb+", 0.5)";
+          self.holdTime = e.holdTime;
+        },
+        release: function(e, detail, selection){
+          var self = this,
+              imgChoice = selection.querySelector('.img-choice');
+          selection.className = "release";
+          if (self.holdTime > 1000) {
+            self.answersSelected++;
+            self.selectAnswer(selection);
+            imgChoice.style.boxShadow = "inset 0 0 0 "+self.imageSize/2+"px rgba("+self.rgb+", 0.5)";
+          } else {
+            self.animation.play(new Animation(imgChoice, 
+              {boxShadow:"inset 0 0 0 0px rgba("+self.rgb+", 0.5)"}
+            , {duration: 1000, fill: "forwards"})
+           )
+          }
+        },
+        tap: function(e, detail, selection){
+           var self = this;
+           setTimeout(function(){
+            if ((selection.className != "release") && (self.numTaps < 1)){
+              self.tapped = true;
+              self.numTaps++;
+            }
+            setTimeout(function(){
+              self.tapped = false;
+            }, 4000)
+           },100)
+          
+        },
         /**
          * The 'tap' method is called when user clicks an answer choice
          * @param  {object} e         e is the event object.
          * @param  {object} detail    detail is event detail.
          * @param  {object} selection selection is the node tapped.
          */
-        tap: function(e, detail, selection){
-          var self = this,
-              imgChoice = selection.querySelector('.img-choice'),
-              checkMark = selection.querySelector('.checkmark');
+        // tap: function(e, detail, selection){
+        //   var self = this,
+        //       imgChoice = selection.querySelector('.img-choice'),
+        //       checkMark = selection.querySelector('.checkmark');
           
-          if (self.answersSelected < self.numAnswers){
-            // Fill chosen circle with transparent color
-            self.animation.play(new Animation(imgChoice, 
-              { boxShadow:"inset 0 0 0 45px rgba("+self.rgb+", 0.5)" },
-              { duration: 1000, fill: "forwards"})
-            )
+        //   if (self.answersSelected < self.numAnswers){
+        //     // Fill chosen circle with transparent color
+        //     self.animation.play(new Animation(imgChoice, 
+        //       { boxShadow:"inset 0 0 0 45px rgba("+self.rgb+", 0.5)" },
+        //       { duration: 1000, fill: "forwards"})
+        //     )
 
-            // Display checkmark on chosen answer
-            self.animation.play(new Animation(checkMark, [
-                { offset: 0.7, opacity: 0 },
-                { offset: 1, opacity: 1 }
-              ],
-              {duration: 1000, fill: "forwards"})
-            )
+        //     // Display checkmark on chosen answer
+        //     self.animation.play(new Animation(checkMark, [
+        //         { offset: 0.7, opacity: 0 },
+        //         { offset: 1, opacity: 1 }
+        //       ],
+        //       {duration: 1000, fill: "forwards"})
+        //     )
 
-            // Keep track of how many answers have been selected
-            self.answersSelected++;
+        //     // Keep track of how many answers have been selected
+        //     self.answersSelected++;
 
-            // Call select answer to determine whether to show answer yet
-            self.selectAnswer(selection);
-          }
-        },
+        //     // Call select answer to determine whether to show answer yet
+        //     self.selectAnswer(selection);
+        //   }
+        // },
         /**
          * The 'selectAnswer' method checks to see if the right number of choices have been selected and if so, calls showAnswer.
          * @param  {object} selection selection is the node selected.
