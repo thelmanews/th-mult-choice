@@ -1,7 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../th-animated/th-animated.html">
 <link rel="import" href="../th-flipbox/th-flipbox.html">
-<link rel="import" href="../th-theme/th-theme.html">
 
 <!--
 Element providing a multiple choice quiz, animated via th-flipbox
@@ -141,7 +140,6 @@ Element providing a multiple choice quiz, animated via th-flipbox
             </div>
         </th-flipbox>
   </template>
-
   <script>
       Polymer('th-mult-choice', {
         /**
@@ -264,39 +262,6 @@ Element providing a multiple choice quiz, animated via th-flipbox
            },100)
           
         },
-        /**
-         * The 'tap' method is called when user clicks an answer choice
-         * @param  {object} e         e is the event object.
-         * @param  {object} detail    detail is event detail.
-         * @param  {object} selection selection is the node tapped.
-         */
-        // tap: function(e, detail, selection){
-        //   var self = this,
-        //       imgChoice = selection.querySelector('.img-choice'),
-        //       checkMark = selection.querySelector('.checkmark');
-          
-        //   if (self.answersSelected < self.numAnswers){
-        //     // Fill chosen circle with transparent color
-        //     self.animation.play(new Animation(imgChoice, 
-        //       { boxShadow:"inset 0 0 0 45px rgba("+self.rgb+", 0.5)" },
-        //       { duration: 1000, fill: "forwards"})
-        //     )
-
-        //     // Display checkmark on chosen answer
-        //     self.animation.play(new Animation(checkMark, [
-        //         { offset: 0.7, opacity: 0 },
-        //         { offset: 1, opacity: 1 }
-        //       ],
-        //       {duration: 1000, fill: "forwards"})
-        //     )
-
-        //     // Keep track of how many answers have been selected
-        //     self.answersSelected++;
-
-        //     // Call select answer to determine whether to show answer yet
-        //     self.selectAnswer(selection);
-        //   }
-        // },
         /**
          * The 'selectAnswer' method checks to see if the right number of choices have been selected and if so, calls showAnswer.
          * @param  {object} selection selection is the node selected.
