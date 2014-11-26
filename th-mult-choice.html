@@ -11,15 +11,17 @@ Element providing a multiple choice quiz, animated via th-flipbox
 @homepage http://github.com/thelmanews/thelma-text/blob/master/th-mult-choice.html
 -->
 
-<polymer-element name="th-mult-choice" extends="th-animated" attributes="width height question answerText choices choicesPerRow textColor">
+<polymer-element name="th-mult-choice" extends="th-animated" attributes="question answerText choices choicesPerRow textColor">
   <template>
       <core-style ref="theme"></core-style>
       <style>
         :host {
           position: relative;
           display: inline-block;
-          width: {{computedWidth + "px"}};
-          height: {{computedHeight + "px"}};
+          min-width: 150px;
+          min-height: 150px;
+          width: 300px;
+          height: 300px;
         }
 
         .img-choice {
@@ -29,8 +31,6 @@ Element providing a multiple choice quiz, animated via th-flipbox
         }
 
         .checkmark {
-          /*background-image: url('/bower_components/thelma-components/images/checkmark.png');
-          background-size: cover;*/
           height: 100%;
           width: 100%;
           opacity: 0;
@@ -99,7 +99,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
       </style>
 
           <!-- Inline styles are required for mobile and Safari -->      
-          <th-flipbox id="flipbox" width="{{computedWidth}}" height="{{computedHeight}}" flippable="false" animateOnInit="true">
+          <th-flipbox id="flipbox" style="width:{{computedWidth}}px; height: {{computedHeight}}px;" flippable="false" animateOnInit="true">
             <div class="front" style="color: {{textColor}}; position: absolute; top: 0; left: 0; -webkit-backface-visibility: hidden; display: table;">
               <div id="question">
                 <div id="headline" class="headline">{{question}}</div>
@@ -158,19 +158,6 @@ Element providing a multiple choice quiz, animated via th-flipbox
           {'text': 'That guy', 'image':'../thelma-all/images/person.jpg', 'answer': 'false'},
           {'text': 'That guy', 'image':'../thelma-all/images/person.jpg', 'answer': 'false'}
         ],
-
-        /** 
-         * The 'width' attribute specifies the width of the component in pixels or percentage.
-         * @type {String}
-         */
-        width: '400',
-
-        /** 
-         * The 'height' attribute specifies the height of the component in pixels or percentage.
-         * @type {String}
-         */
-        height: '300',
-
         /**
          * The 'answerText' attribute specifies the text that prefaces the correct answer(s).
          * @type {String}
@@ -179,8 +166,8 @@ Element providing a multiple choice quiz, animated via th-flipbox
         choicesPerRow: 2,
         domReady: function(){
           var self = this;
-          self.computedWidth = self.computeWidth(self.width);
-          self.computedHeight = self.computeHeight(self.height);
+          self.computedWidth = self.computeWidth();
+          self.computedHeight = self.computeHeight();
           self.setColors();
           self.answered = false;
           self.setElementDims();
@@ -204,6 +191,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
           self.choiceHeight = (height - questionHeight) / numRows; // Height of area for choices
           self.imageSize = Math.min(self.choiceHeight, self.choiceWidth) * 0.7;  // Size of image (assumes room for label)
           self.labelSize = Math.min(self.choiceHeight, self.choiceWidth) * 0.15; // Size of label
+          console.log(self.imageSize);
         },
         /**
          * The 'setColors' method detects the theme and chooses the correct colors. It also converts the theme color into RGB format to be applied in RGBA format in CSS
