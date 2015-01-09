@@ -122,7 +122,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
             </div>
 
             <div class="back" style="color: {{textColor}}; position: absolute; top: 0; left: 0; -webkit-backface-visibility: hidden; display: table;">
-              <div id="answer">
+              <div id="answer" on-click="{{reset}}" touch-action="auto">
                 <div class="headline fadein">{{answerText}}</div>
                 
                 <div class="choices">
@@ -279,7 +279,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
           if (self.answered){
             setTimeout(function(){
               self.$.flipbox.flip();
-              self.animation.play(new Animation(self.$.answer, {opacity:0}, {duration: 500, fill:"forwards"} ));
+              self.animation.play(new Animation(self.$.answer, {opacity:0}, {duration: 100, fill:"forwards"} ));
               self.animation.play(new Animation(self.$.question, {opacity:1}, {duration: 1000, fill:"forwards"} ));              
               
               var choices = self.shadowRoot.querySelectorAll('.img-choice');
@@ -289,7 +289,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
                   { duration: 100, fill: "forwards"})
                 )
               }
-            }, 750)
+            }, 500)
           }
         },
         /**
