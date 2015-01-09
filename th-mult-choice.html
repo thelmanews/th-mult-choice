@@ -148,16 +148,13 @@ Element providing a multiple choice quiz, animated via th-flipbox
          * @type {String}
          */
         question: "Which one is better?",
-
         /**
          * The 'choices' attribute specifies all the answer choices
          * @type {Array}
          */
         choices: [
           {'text': 'This guy', 'image':'../thelma-all/images/person.jpg', 'answer': 'false'},
-          {'text': 'That guy', 'image':'../thelma-all/images/person.jpg', 'answer': 'true'},
-          {'text': 'That guy', 'image':'../thelma-all/images/person.jpg', 'answer': 'false'},
-          {'text': 'That guy', 'image':'../thelma-all/images/person.jpg', 'answer': 'false'}
+          {'text': 'That guy', 'image':'../thelma-all/images/person.jpg', 'answer': 'true'}
         ],
 
 
@@ -218,8 +215,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
     
           self.animation.play(new Animation(imgChoice, 
               {boxShadow:"inset 0 0 0 "+self.imageSize/2+"px rgba("+self.rgb+", 0.5)"}
-              
-            , {duration: 1000, fill: "forwards"}))
+            , {duration: 700, fill: "forwards"}))
           // self.answersSelected++;
             // self.selectAnswer(selection);
             // imgChoice.style.boxShadow = "inset 0 0 0 45px rgba("+self.rgb+", 0.5)";
@@ -229,14 +225,14 @@ Element providing a multiple choice quiz, animated via th-flipbox
           var self = this,
               imgChoice = selection.querySelector('.img-choice');
           selection.className = "release";
-          if (self.holdTime > 1000) {
+          if (self.holdTime > 700) {
             self.answersSelected++;
             self.selectAnswer(selection);
             imgChoice.style.boxShadow = "inset 0 0 0 "+self.imageSize/2+"px rgba("+self.rgb+", 0.5)";
           } else {
             self.animation.play(new Animation(imgChoice, 
               {boxShadow:"inset 0 0 0 0px rgba("+self.rgb+", 0.5)"}
-            , {duration: 1000, fill: "forwards"})
+            , {duration: 700, fill: "forwards"})
            )
           }
         },
@@ -272,7 +268,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
             self.animation.play(new Animation(self.$.answer, {opacity:1}, {duration: 1000, fill:"forwards"} ));
             self.$.flipbox.flip(); 
             self.answered = true;
-          }, 2000)
+          }, 750)
         
         },
         /**
@@ -293,7 +289,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
                   { duration: 100, fill: "forwards"})
                 )
               }
-            }, 2000)
+            }, 750)
           }
         },
         /**
