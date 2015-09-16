@@ -122,7 +122,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
             </div>
 
             <div class="back" style="color: {{textColor}}; position: absolute; top: 0; left: 0; -webkit-backface-visibility: hidden; display: table;">
-              <div id="answer" touch-action="auto">
+              <div id="answer" touch-action="auto" on-click="{{reset}}">
                 <div class="headline fadein">{{answerText}}</div>
                 
                 <div class="choices"  on-click="{{reset}}" >
@@ -192,6 +192,7 @@ Element providing a multiple choice quiz, animated via th-flipbox
           self.choiceHeight = (height - questionHeight) / numRows; // Height of area for choices
           self.imageSize = Math.min(self.choiceHeight, self.choiceWidth) * 0.7;  // Size of image (assumes room for label)
           self.labelSize = Math.min(self.choiceHeight, self.choiceWidth) * 0.15; // Size of label
+          self.endFillSize = self.imageSize/2;
         },
         /**
          * The 'setColors' method detects the theme and chooses the correct colors. It also converts the theme color into RGB format to be applied in RGBA format in CSS
@@ -213,10 +214,16 @@ Element providing a multiple choice quiz, animated via th-flipbox
               imgChoice = selection.querySelector('.img-choice');
           selection.classList.remove('release');
           selection.classList.add('hold');
-    
-          self.animation.play(new Animation(selection, 
-              {boxShadow:"inset 0 0 0 "+self.imageSize/2+"px rgba("+self.rgb+", 0.5)"}
-            , {duration: 700, fill: "forwards"}))
+          
+          if (!self.holdTime) {
+            self.currentFillSize = 0;
+          } else {
+            self.currentFillSize = parseInt(Math.min(self.endFillSize, (self.endFillSize*self.holdTime/700)));
+          }
+          
+          // Continues filling answer choice.
+          selection.animate( [{boxShadow:"inset 0 0 0 "+self.currentFillSize+"px rgba("+self.rgb+", 0.5)"},{boxShadow:"inset 0 0 0 "+self.endFillSize+"px rgba("+self.rgb+", 0.5)"}], {duration: 700, fill: "forwards"});
+          
           // self.answersSelected++;
             // self.selectAnswer(selection);
             // imgChoice.style.boxShadow = "inset 0 0 0 45px rgba("+self.rgb+", 0.5)";
@@ -230,13 +237,13 @@ Element providing a multiple choice quiz, animated via th-flipbox
           if (self.holdTime > 700) {
             self.answersSelected++;
             self.selectAnswer(selection);
-            selection.style.boxShadow = "inset 0 0 0 "+self.imageSize/2+"px rgba("+self.rgb+", 0.5)";
+            // Locks in fill for chosen answer.
+            selection.style.boxShadow = "inset 0 0 0 "+self.endFillSize+"px rgba("+self.rgb+", 0.5)";
           } else {
-            self.animation.play(new Animation(selection, 
-              {boxShadow:"inset 0 0 0 0px rgba("+self.rgb+", 0.5)"}
-            , {duration: 700, fill: "forwards"})
-           )
+            // Unfills answer choice.
+            selection.animate([{boxShadow:"inset 0 0 0 "+self.currentFillSize+"px rgba("+self.rgb+", 0.5)"},{boxShadow:"inset 0 0 0 0px rgba("+self.rgb+", 0.5)"}], {duration: 500, fill: "forwards"});
           }
+          self.holdTime = 0;
         },
         tap: function(e, detail, selection){
            var self = this;
@@ -266,8 +273,9 @@ Element providing a multiple choice quiz, animated via th-flipbox
           var self = this;
 
           setTimeout(function(){
-            self.animation.play(new Animation(self.$.question, {opacity:0}, {duration: 500, fill:"forwards"} ));
-            self.animation.play(new Animation(self.$.answer, {opacity:1}, {duration: 1000, fill:"forwards"} ));
+            // Displays answer, hides question, flips box.
+            self.$.answer.animate([{opacity:0},{opacity:1}], {duration: 1000, fill:"forwards"});
+            self.$.question.animate([{opacity:1},{opacity:0}], {duration: 500, fill:"forwards"});
             self.$.flipbox.flip(); 
             self.answered = true;
           }, 750)
@@ -280,16 +288,15 @@ Element providing a multiple choice quiz, animated via th-flipbox
           var self = this;
           if (self.answered){
             setTimeout(function(){
+              // Flips box, hides answer, displays question.
               self.$.flipbox.flip();
-              self.animation.play(new Animation(self.$.answer, {opacity:0}, {duration: 100, fill:"forwards"} ));
-              self.animation.play(new Animation(self.$.question, {opacity:1}, {duration: 1000, fill:"forwards"} ));              
+              self.$.answer.animate([{opacity:1},{opacity:0}], {duration: 100, fill:"forwards"});
+              self.$.question.animate([{opacity:0},{opacity:1}], {duration: 1000, fill:"forwards"});
               
               var choices = self.shadowRoot.querySelectorAll('.img-choice');
+              // Unfills all choices
               for(var i=0; i<choices.length; i++){
-                self.animation.play(new Animation(choices[i], 
-                  { boxShadow:"inset 0 0 0 0px rgba("+self.rgb+", 0.5)" },
-                  { duration: 100, fill: "forwards"})
-                )
+                choices[i].animate([{ boxShadow:"inset 0 0 0 "+self.endFillSize+"px rgba("+self.rgb+", 0.5)" },{ boxShadow:"inset 0 0 0 0px rgba("+self.rgb+", 0.5)" }], { duration: 100, fill: "forwards"});
               }
             }, 500)
           }
